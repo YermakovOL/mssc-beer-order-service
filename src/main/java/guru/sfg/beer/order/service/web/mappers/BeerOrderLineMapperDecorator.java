@@ -4,14 +4,17 @@ import guru.sfg.beer.order.service.domain.BeerOrderLine;
 import guru.sfg.beer.order.service.services.beer.BeerService;
 import guru.sfg.brewery.model.BeerDto;
 import guru.sfg.brewery.model.BeerOrderLineDto;
+import org.hibernate.validator.constraints.CodePointLength;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 /**
  * Created by jt on 2019-06-09.
  */
+@Component
 public abstract class BeerOrderLineMapperDecorator implements BeerOrderLineMapper {
 
     private BeerService beerService;
@@ -31,7 +34,7 @@ public abstract class BeerOrderLineMapperDecorator implements BeerOrderLineMappe
     @Override
     public BeerOrderLineDto beerOrderLineToDto(BeerOrderLine line) {
         BeerOrderLineDto orderLineDto = beerOrderLineMapper.beerOrderLineToDto(line);
-        Optional<BeerDto> beerDtoOptional = beerService.getBeerByUpc(line.getUpc());
+        Optional<BeerDto> beerDtoOptional = beerService.getBeerById(line.getBeerId());
 
         beerDtoOptional.ifPresent(beerDto -> {
             orderLineDto.setBeerName(beerDto.getBeerName());
