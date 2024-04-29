@@ -12,7 +12,7 @@ import java.util.UUID;
 @Component
 public class BeerOrderResponseListener {
     private final BeerOrderManager beerOrderManager;
-    @JmsListener(destination = JmsConfig.VALIDATE_ORDER_RESPONSE)
+    @JmsListener(destination = JmsConfig.VALIDATE_ORDER_RESPONSE_QUEUE)
     void getValidateOrderResult(ValidateOrderResult validateOrderResult){
         UUID orderId = validateOrderResult.getId();
         Boolean isValid = validateOrderResult.getIsValid();
