@@ -11,15 +11,20 @@ import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
+import java.util.EnumSet;
+
 
 @Configuration
 @EnableStateMachineFactory
 @RequiredArgsConstructor
 public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<BeerOrderStatusEnum, BeerOrderEventEnum> {
-    private final Action<BeerOrderStatusEnum,BeerOrderEventEnum> validateOrderAction;
+
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>  validateOrderAction;
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>  allocateOrderAction;
     @Override
     public void configure(StateMachineStateConfigurer<BeerOrderStatusEnum, BeerOrderEventEnum> states) throws Exception {
         states.withStates().initial(BeerOrderStatusEnum.NEW)
+                .states(EnumSet.allOf(BeerOrderStatusEnum.class))
                 .end(BeerOrderStatusEnum.VALIDATION_EXCEPTION)
                 .end(BeerOrderStatusEnum.ALLOCATION_EXCEPTION)
                 .end(BeerOrderStatusEnum.VALIDATION_EXCEPTION)
@@ -42,6 +47,10 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
                     .event(BeerOrderEventEnum.VALIDATION_PASSED)
                 .and().withExternal()
                     .source(BeerOrderStatusEnum.NEW)
-                    .target(BeerOrderStatusEnum.VALIDATION_EXCEPTION);
+                    .target(BeerOrderStatusEnum.VALIDATION_EXCEPTION)
+                .and().withExternal()
+                    .source(BeerOrderStatusEnum.VALIDATED).target(BeerOrderStatusEnum.ALLOCATION_PENDING)
+                    .event(BeerOrderEventEnum.ALLOCATE_ORDER)
+                    .action(allocateOrderAction);
     }
 }
