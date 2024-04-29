@@ -1,4 +1,4 @@
-package guru.sfg.brewery.model;
+package guru.sfg.brewery.model.events;
 
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.brewery.model.BeerOrderDto;

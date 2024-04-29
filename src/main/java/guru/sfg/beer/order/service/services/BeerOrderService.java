@@ -20,11 +20,7 @@ package guru.sfg.beer.order.service.services;
 
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.BeerOrderPagedList;
-import guru.sfg.brewery.model.ValidateOrderRequest;
-import jakarta.jms.Message;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.handler.annotation.Headers;
-import org.springframework.messaging.handler.annotation.Payload;
 
 import java.util.UUID;
 

@@ -5,7 +5,8 @@ import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.sm.BeerOrderStateChangeInterceptor;
-import guru.sfg.brewery.model.ValidateOrderResult;
+import guru.sfg.brewery.model.BeerOrderDto;
+import guru.sfg.brewery.model.BeerOrderLineDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -15,9 +16,11 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 /**
@@ -56,6 +59,29 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
             sendBeerOrderEvent(updatedOrder, BeerOrderEventEnum.ALLOCATE_ORDER);
         }
         else sendBeerOrderEvent(referenceById,BeerOrderEventEnum.VALIDATION_FAILED);
+    }
+
+    @Override
+    public void sendAllocationResult(BeerOrderDto beerOrderDto, Boolean inventoryPending, Boolean allocationError) {
+        BeerOrder beerOrder = beerOrderRepository.getReferenceById(beerOrderDto.getId());
+        if(inventoryPending) sendBeerOrderEvent(beerOrder,BeerOrderEventEnum.ALLOCATION_NO_INVENTORY);
+        else if(allocationError) sendBeerOrderEvent(beerOrder,BeerOrderEventEnum.ALLOCATION_FAILED);
+        else sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_SUCCESS);
+
+        updateAllocatedQty(beerOrderDto, beerOrder);
+    }
+
+    private void updateAllocatedQty(BeerOrderDto beerOrderDto, BeerOrder beerOrder) {
+        Map<UUID, BeerOrderLineDto> dtoMap = beerOrderDto.getBeerOrderLines()
+                .stream()
+                .collect(Collectors.toMap(BeerOrderLineDto::getBeerId, Function.identity()));
+
+        beerOrder.getBeerOrderLines().stream()
+                .filter(beerOrderLine -> dtoMap.containsKey(beerOrderLine.getBeerId()))
+                .forEach(beerOrderLine -> {
+                    BeerOrderLineDto dto = dtoMap.get(beerOrderLine.getBeerId());
+                    beerOrderLine.setQuantityAllocated(dto.getQuantityAllocated());
+                });
     }
 
     private void sendBeerOrderEvent(BeerOrder beerOrder, BeerOrderEventEnum eventEnum){
