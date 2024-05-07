@@ -29,7 +29,7 @@ public class BeerOrderValidationListener {
         jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_RESPONSE_QUEUE,
                 ValidateOrderResult.builder()
                 .isValid(true)
-                .orderId(request.getBeerOrder().getId())
+                .id(request.getBeerOrderDto().getId())
                 .build());
 
     }

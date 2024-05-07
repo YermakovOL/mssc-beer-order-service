@@ -12,6 +12,8 @@ import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerServiceImpl;
 import guru.sfg.brewery.model.BeerDto;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,24 +21,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.awaitility.Awaitility.await;
-import static org.jgroups.util.Util.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Created by jt on 2/14/20.
- */
-@ExtendWith(WireMockExtension.class)
-@SpringBootTest
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import guru.sfg.beer.order.service.domain.Customer;
+import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
+import guru.sfg.beer.order.service.repositories.CustomerRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+
+import java.util.UUID;
+
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BeerOrderManagerImplIT {
 
     @Autowired
@@ -59,20 +72,29 @@ public class BeerOrderManagerImplIT {
     UUID beerId = UUID.randomUUID();
 
     @TestConfiguration
-    static class RestTemplateBuilderProvider {
-        @Bean(destroyMethod = "stop")
-        public WireMockServer wireMockServer(){
-            WireMockServer server = with(wireMockConfig().port(8083));
-            server.start();
-            return server;
+    public static class WireMockConfig {
+
+        @Bean(initMethod = "start", destroyMethod = "stop")
+        @Primary
+        public WireMockServer wireMockServer() {
+            WireMockServer wireMockServer = new WireMockServer();
+            wireMockServer.start();
+            return wireMockServer;
         }
     }
 
+    @Test
+    void test(){
+
+    }
     @BeforeEach
     void setUp() {
         testCustomer = customerRepository.save(Customer.builder()
                 .customerName("Test Customer")
                 .build());
+    }
+    @AfterEach
+    void shutDown(){
     }
 
     @Test

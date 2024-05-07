@@ -47,6 +47,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         return savedBeerOrder;
     }
 
+    @Transactional
     @Override
     public void sendValidationResult(UUID orderId, Boolean isValid) {
         BeerOrder referenceById = beerOrderRepository.getReferenceById(orderId);
