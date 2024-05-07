@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class AllocationOrderResponse {
+public class AllocateOrderResult {
     private BeerOrderDto beerOrderDto;
     private Boolean allocationError;
     private Boolean allocationPending = false;

@@ -14,5 +14,11 @@ public interface BeerOrderManager {
 
     void sendValidationResult(UUID orderId, Boolean isValid);
 
-    void sendAllocationResult(BeerOrderDto beerOrderDto, Boolean inventoryPending, Boolean allocationError);
+    void beerOrderAllocationPassed(BeerOrderDto beerOrder);
+
+    void beerOrderAllocationPendingInventory(BeerOrderDto beerOrder);
+
+    void beerOrderAllocationFailed(BeerOrderDto beerOrder);
+
+    void beerOrderPickedUp(UUID id);
 }
